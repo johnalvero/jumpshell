@@ -1,0 +1,56 @@
+#!/bin/bash
+# SSH Menu for bastion servers 
+# John Alvero
+# 2014 Nov 16
+#
+# To use, just set the user's shell to this script like so 
+# jump:x:100:100::/home/jump:/opt/bin/jumpshell
+
+function valid_host()
+{
+    local  ip=$1
+    local  stat=1
+
+    if [[ $ip =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+        OIFS=$IFS
+        IFS='.'
+        ip=($ip)
+        IFS=$OIFS
+        [[ ${ip[0]} -le 255 && ${ip[1]} -le 255 \
+            && ${ip[2]} -le 255 && ${ip[3]} -le 255 ]]
+        stat=$?
+    else
+        if [[ `echo $1 | grep -P '(?=^.{1,254}$)(^(?:(?!\d+\.)[a-zA-Z0-9_\-]{1,63}\.?)+(?:[a-zA-Z]{2,})$)'` ]]; then
+          stat=$?
+        fi
+    fi
+    return $stat
+}
+
+/usr/bin/clear
+echo -e "\n\n"
+echo -e "Welcome to V jump server. Access will be logged. If you arrived here by mistake, kindly CTRL + C now."
+echo -e "\n\n"
+echo -n "Enter SSH Username: "
+read sshusername
+echo -n "Enter SSH Host: "
+read sshhost
+
+# Validate Username
+if ! [ `echo $sshusername | grep '^[-0-9a-zA-Z]*$'` ]
+then
+  echo "Invalid Username"
+  exit 1  
+fi
+
+# Validate IP / Host
+valid_host $sshhost
+
+if ! [ $? -eq 0 ]
+then
+  echo "Invalid IP or hostname. Exiting..."
+  exit 1
+fi
+
+# Now SSH
+ssh $sshusername@$sshhost
