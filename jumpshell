@@ -47,9 +47,9 @@ echo -n "Enter SSH Host: "
 read sshhost
 
 # Validate Username
-if ! [ `echo $sshusername | grep '^[-0-9a-zA-Z]*$'` ]
+if ! [ `echo $sshusername | grep '^[.-0-9a-zA-Z]*$'` ]
 then
-  echo "Invalid Username"
+  echo "[JumpShell] Invalid Username"
   exit 1  
 fi
 
